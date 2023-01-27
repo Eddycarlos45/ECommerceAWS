@@ -7,6 +7,7 @@ import * as cwlogs from 'aws-cdk-lib/aws-logs'
 interface ECommerceApiStackProps extends cdk.StackProps {
   productsFetchHandler: lambdaNodeJs.NodejsFunction
   productsAdminHandler: lambdaNodeJs.NodejsFunction
+  ordersHandler: lambdaNodeJs.NodejsFunction
 }
 
 export class ECommerceApiStack extends cdk.Stack {
@@ -35,6 +36,39 @@ export class ECommerceApiStack extends cdk.Stack {
       }
     })
 
+    this.createProductsService(props, api)
+    this.createOrdersService(props, api)
+  }
+
+  private createOrdersService(props: ECommerceApiStackProps, api: apigateway.RestApi) {
+    const ordersIntegration = new apigateway.LambdaIntegration(props.ordersHandler)
+
+    const ordersResource = api.root.addResource('orders')
+    // '/orders'
+    // GET /orders
+    // GET /orders?email=mail@mail.com
+    // GET /orders?email=mail@mail.com&orderId=123
+    ordersResource.addMethod('GET', ordersIntegration)
+
+    const orderDeleteValidator = new apigateway.RequestValidator(this, 'OrderDeletionValidator', {
+      restApi: api,
+      requestValidatorName: 'OrderDeletionValidator',
+      validateRequestParameters: true
+    })
+    // DELETE /orders?email=mail@mail.com&orderId=123
+    ordersResource.addMethod('DELETE', ordersIntegration, {
+      requestParameters: {
+        'method.request.querystring.email': true,
+        'method.request.querystring.orderId': true
+      },
+      requestValidator: orderDeleteValidator
+    })
+
+    // POST /orders
+    ordersResource.addMethod('POST', ordersIntegration)
+  }
+
+  private createProductsService(props: ECommerceApiStackProps, api: apigateway.RestApi) {
     const productsFetchIntegration = new apigateway.LambdaIntegration(props.productsFetchHandler)
 
     // '/products'
