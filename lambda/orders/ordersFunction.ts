@@ -81,10 +81,21 @@ export async function handler(event: APIGatewayProxyEvent, context: Context): Pr
     }
   } else if (method === 'DELETE') {
     console.log('DELETE / orders')
-    const email = event.queryStringParameters!.email
-    const orderId = event.queryStringParameters!.orderId
-
-
+    const email = event.queryStringParameters!.email!
+    const orderId = event.queryStringParameters!.orderId!
+    try {
+      const orderDelete = await orderRepository.deleteOrder(email, orderId)
+      return {
+        statusCode: 200,
+        body: JSON.stringify(convertToOrderResponse(orderDelete))
+      }
+    } catch (error) {
+      console.log((<Error>error).message)
+      return {
+        statusCode: 404,
+        body: (<Error>error).message
+      }
+    }
   }
 
   return {
