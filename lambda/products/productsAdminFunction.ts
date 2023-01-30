@@ -1,5 +1,5 @@
 import { APIGatewayProxyEvent, Context, APIGatewayProxyResult } from 'aws-lambda'
-import { Product, ProductRepository } from './layers/productsLayer/nodejs/productsRepository'
+import { Product, ProductRepository } from './layers/productsLayer/nodejs/productRepository'
 import { DynamoDB, Lambda } from 'aws-sdk'
 import { ProductEvent, ProductEventType } from '/opt/nodejs/productsEventsLayer'
 import * as AWSXRay from 'aws-xray-sdk'
