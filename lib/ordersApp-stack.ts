@@ -6,6 +6,8 @@ import * as ssm from 'aws-cdk-lib/aws-ssm'
 import * as sns from 'aws-cdk-lib/aws-sns'
 import * as subs from 'aws-cdk-lib/aws-sns-subscriptions'
 import * as iam from 'aws-cdk-lib/aws-iam'
+import * as sqs from 'aws-cdk-lib/aws-sqs'
+import * as lambdaEventSource from 'aws-cdk-lib/aws-lambda-event-sources'
 import { Construct } from 'constructs'
 
 interface OrdersAppStackProps extends cdk.StackProps {
@@ -137,5 +139,28 @@ export class OrdersAppStack extends cdk.Stack {
         })
       }
     }))
+
+    const orderEventsQueue = new sqs.Queue(this, 'OrderEventsQueue', {
+      queueName: 'order-events'
+    })
+    ordersTopic.addSubscription(new subs.SqsSubscription(orderEventsQueue))
+
+    const orderEmailsHandler = new lambdaNodeJS.NodejsFunction(this, 'OrderEmailsFunction', {
+      functionName: 'OrderEmailsFunction',
+      entry: 'lambda/orders/orderEmailsFunction.ts',
+      handler: 'handler',
+      memorySize: 128,
+      timeout: cdk.Duration.seconds(2),
+      bundling: {
+        minify: true,
+        sourceMap: false
+      },
+      layers: [orderEventsLayer],
+      tracing: lambda.Tracing.ACTIVE,
+      insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0
+    })
+
+    orderEmailsHandler.addEventSource(new lambdaEventSource.SqsEventSource(orderEventsQueue))
+    orderEventsQueue.grantConsumeMessages(orderEmailsHandler)
   }
 }
