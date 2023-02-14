@@ -46,9 +46,9 @@ export class OrdersAppStack extends cdk.Stack {
     const orderEventsLayerArn = ssm.StringParameter.valueForStringParameter(this, 'OrderEventsLayerVersionArn')
     const orderEventsLayer = lambda.LayerVersion.fromLayerVersionArn(this, 'OrderEventsLayerVersionArn', orderEventsLayerArn)
 
-     //Order Events Repository Layer
-     const orderEventsRepositoryLayerArn = ssm.StringParameter.valueForStringParameter(this, 'OrderEventsRepositoryLayerVersionArn')
-     const orderEventsRepositoryLayer = lambda.LayerVersion.fromLayerVersionArn(this, 'OrderEventsRepositoryLayerVersionArn', orderEventsRepositoryLayerArn)
+    //Order Events Repository Layer
+    const orderEventsRepositoryLayerArn = ssm.StringParameter.valueForStringParameter(this, 'OrderEventsRepositoryLayerVersionArn')
+    const orderEventsRepositoryLayer = lambda.LayerVersion.fromLayerVersionArn(this, 'OrderEventsRepositoryLayerVersionArn', orderEventsRepositoryLayerArn)
 
     //Products Layer
     const productsLayerArn = ssm.StringParameter.valueForStringParameter(this, 'ProductEventsLayerVersionArn')
@@ -115,5 +115,27 @@ export class OrdersAppStack extends cdk.Stack {
     })
 
     orderEventsHandler.addToRolePolicy(eventsDdbPolicy)
+
+    const billingHandler = new lambdaNodeJS.NodejsFunction(this, 'BillingFunction', {
+      functionName: 'BillingFunction',
+      entry: 'lambda/orders/billingFunction.ts',
+      handler: 'handler',
+      memorySize: 128,
+      timeout: cdk.Duration.seconds(2),
+      bundling: {
+        minify: true,
+        sourceMap: false
+      },
+      tracing: lambda.Tracing.ACTIVE,
+      insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0
+    })
+
+    ordersTopic.addSubscription(new subs.LambdaSubscription(billingHandler, {
+      filterPolicy: {
+        eventType: sns.SubscriptionFilter.stringFilter({
+          allowlist: ['ORDER_CREATED']
+        })
+      }
+    }))
   }
 }
