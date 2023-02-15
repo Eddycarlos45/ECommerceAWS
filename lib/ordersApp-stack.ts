@@ -140,8 +140,16 @@ export class OrdersAppStack extends cdk.Stack {
       }
     }))
 
+    const orderEventsDlq = new sqs.Queue(this, 'OrderEventsDlq', {
+      queueName: 'order-events-dlq',
+      retentionPeriod: cdk.Duration.days(10)
+    })
     const orderEventsQueue = new sqs.Queue(this, 'OrderEventsQueue', {
-      queueName: 'order-events'
+      queueName: 'order-events',
+      deadLetterQueue: {
+        maxReceiveCount: 3,
+        queue: orderEventsDlq
+      }
     })
     ordersTopic.addSubscription(new subs.SqsSubscription(orderEventsQueue, {
       filterPolicy: {
@@ -166,7 +174,12 @@ export class OrdersAppStack extends cdk.Stack {
       insightsVersion: lambda.LambdaInsightsVersion.VERSION_1_0_119_0
     })
 
-    orderEmailsHandler.addEventSource(new lambdaEventSource.SqsEventSource(orderEventsQueue))
+    orderEmailsHandler.addEventSource(new lambdaEventSource.SqsEventSource(orderEventsQueue/*,  {
+      batchSize: 5,
+      enabled: true,
+      maxBatchingWindow: cdk.Duration.minutes(1)
+    } */))
+
     orderEventsQueue.grantConsumeMessages(orderEmailsHandler)
   }
 }
