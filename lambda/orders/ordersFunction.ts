@@ -189,7 +189,7 @@ function buildOrder(orderRequest: OrderRequest, products: Product[]): Order {
     pk: orderRequest.email,
     billing: {
       payment: orderRequest.payment,
-      totalPrice: totalPrice
+      totalPrice: parseFloat(totalPrice.toFixed(2))
     },
     shipping: {
       type: orderRequest.shipping.type,
