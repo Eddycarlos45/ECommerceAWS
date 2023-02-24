@@ -16,3 +16,7 @@ The `cdk.json` file tells the CDK Toolkit how to execute your app.
 # Project
 
 ![image](https://user-images.githubusercontent.com/31168253/212786662-c134982e-378b-4481-8047-2e0d2bb83a9c.png)
+
+## Upload Files
+
+![image](https://user-images.githubusercontent.com/31168253/221233983-c3bfd0dc-edd4-45ac-8d10-ed9fce37d2a8.png)
