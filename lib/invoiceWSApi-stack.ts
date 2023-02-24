@@ -30,7 +30,7 @@ export class InvoiceWsApiStack extends cdk.Stack {
       timeToLiveAttribute: 'ttl',
       removalPolicy: cdk.RemovalPolicy.DESTROY
     })
-    
+
     //Invoice bucket
     const bucket = new s3.Bucket(this, "InvoiceBucket", {
       removalPolicy: cdk.RemovalPolicy.DESTROY,
@@ -70,9 +70,27 @@ export class InvoiceWsApiStack extends cdk.Stack {
       },
       tracing: lambda.Tracing.ACTIVE
     })
-    
-    //WebSocket API
 
+    //WebSocket API
+    const webSocketApi = new apigatewayv2.WebSocketApi(this, "InvoiceWSApi", {
+      apiName: "InvoiceWSApi",
+      connectRouteOptions: {
+        integration:
+          new apigatewayv2_integrations.WebSocketLambdaIntegration("ConnectionHandler", connectionHandler)
+      },
+      disconnectRouteOptions: {
+        integration:
+          new apigatewayv2_integrations.WebSocketLambdaIntegration("DisconnectionHandler", disconnectionHandler)
+      }
+    })
+
+    const stage = "prod"
+    const wsApiEndpoint = `${webSocketApi.apiEndpoint}/${stage}`
+    new apigatewayv2.WebSocketStage(this, "InvoiceWSApiStage", {
+      webSocketApi: webSocketApi,
+      stageName: stage,
+      autoDeploy: true
+    })
     //Invoice URL handler
 
     //Invoice import handler
