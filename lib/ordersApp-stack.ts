@@ -9,7 +9,6 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import * as sqs from 'aws-cdk-lib/aws-sqs'
 import * as lambdaEventSource from 'aws-cdk-lib/aws-lambda-event-sources'
 import { Construct } from 'constructs'
-import { Effect } from 'aws-cdk-lib/aws-iam'
 
 interface OrdersAppStackProps extends cdk.StackProps {
   productsDdb: dynamodb.Table,
