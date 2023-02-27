@@ -22,7 +22,7 @@ export class InvoicesAppLayersStack extends cdk.Stack {
 
     //Invoice Layer
     const invoiceLayer = new lambda.LayerVersion(this, 'invoiceLayer', {
-      code: lambda.Code.fromAsset('lambda/invoices/layers/invoiceLayer'),
+      code: lambda.Code.fromAsset('lambda/invoices/layers/invoiceRepository'),
       compatibleRuntimes: [lambda.Runtime.NODEJS_14_X],
       layerVersionName: 'InvoiceRepository',
       removalPolicy: cdk.RemovalPolicy.RETAIN
@@ -35,9 +35,9 @@ export class InvoicesAppLayersStack extends cdk.Stack {
 
     //Invoice WebSocket API Layer
     const invoiceWSConnectionLayer = new lambda.LayerVersion(this, 'InvoiceWSConnectionLayer', {
-      code: lambda.Code.fromAsset('lambda/invoices/layers/invoiceConnection'),
+      code: lambda.Code.fromAsset('lambda/invoices/layers/invoiceWSConnection'),
       compatibleRuntimes: [lambda.Runtime.NODEJS_14_X],
-      layerVersionName: 'InvoiceConnection',
+      layerVersionName: 'invoiceWSConnection',
       removalPolicy: cdk.RemovalPolicy.RETAIN
     })
 
