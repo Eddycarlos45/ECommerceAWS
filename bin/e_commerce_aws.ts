@@ -78,10 +78,13 @@ const invoicesAppLayersStack = new InvoicesAppLayersStack(app, 'InvoicesAppLayer
 })
 
 const invoiceWSApiStack = new InvoiceWsApiStack(app, 'InvoiceApi', {
+  eventsDdb: eventsDdbStack.table,
   tags: {
     const: 'InvoiceApp',
     team: 'EdsonSousa'
   },
   env: env
 })
+
 invoiceWSApiStack.addDependency(invoicesAppLayersStack)
+invoiceWSApiStack.addDependency(eventsDdbStack)
