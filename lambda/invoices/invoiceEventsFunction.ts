@@ -32,7 +32,6 @@ export async function handler(event: DynamoDBStreamEvent, context: Context): Pro
     } else if (record.eventName === 'REMOVE') {
       if (record.dynamodb!.OldImage!.pk.S!.startsWith('#transaction')) {
         console.log('Invoice transaction event received')
-        processExpiredTransaction(record.dynamodb!.OldImage!)
         promises.push(processExpiredTransaction(record.dynamodb!.OldImage!))
       }
     }
