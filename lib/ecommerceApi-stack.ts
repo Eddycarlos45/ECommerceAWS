@@ -63,7 +63,7 @@ export class ECommerceApiStack extends cdk.Stack {
 
     const preAuthenticationHandler = new lambdaNodeJs.NodejsFunction(this, 'PreAuthenticatioFunction', {
       functionName: 'PreAuthenticatioFunction',
-      entry: 'lambda/auth/preAuthenticatioFunction.ts',
+      entry: 'lambda/auth/preAuthenticationFunction.ts',
       handler: 'handler',
       memorySize: 128,
       timeout: cdk.Duration.seconds(2),
